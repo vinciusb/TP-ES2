@@ -4,13 +4,26 @@ using TwitterAPI.Domain;
 namespace TwitterAPI.Infrastructure.Persistence {
 	public class PostgresTwitterRepository : DbContext, ITwitterRepository {
 		// DB
+		public DbSet<User> Users;
 
-		// USER
-		public Task CreateUserAsync(User user) {
-			throw new NotImplementedException();
+		public PostgresTwitterRepository(DbContextOptions<PostgresTwitterRepository> opt) : base(opt) { }
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder) {
+			modelBuilder.Entity<User>();
 		}
 
-		public Task DeleteUserAsync(int id) {
+		// USER
+		public async Task<bool> CreateUserAsync(User user) {
+			var users = Users.Where(u => u.At == user.At);
+			if(users == null) {
+				await Users.AddAsync(user);
+				await SaveChangesAsync();
+				return true;
+			}
+			return false;
+		}
+
+		public async Task DeleteUserAsync(int id) {
 			throw new NotImplementedException();
 		}
 

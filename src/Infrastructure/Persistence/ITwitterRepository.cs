@@ -22,7 +22,7 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		/// <param name="id"></param>
 		/// <returns> A user that has the same id as the specified. </returns>
 		Task<User> GetUserAsync(int id);
-		Task CreateUserAsync(User user);
+		Task<bool> CreateUserAsync(User user);
 		Task UpdateUserAsync(int id, User user);
 		Task DeleteUserAsync(int id);
 		Task Tweet(int id, Tweet tweet);

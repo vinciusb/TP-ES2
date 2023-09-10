@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using TwitterAPI.Infrastructure.Persistence;
+using TwitterAPI.Settings;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,13 +11,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// =============================================================================
+var psqlDbSettings = builder.Configuration.GetSection(nameof(PostgresDbSettings)).Get<PostgresDbSettings>();
+// builder.Services.AddSingleton<PostgresTwitterRepository>();
+builder.Services.AddDbContext<PostgresTwitterRepository>(opt => opt.UseNpgsql(psqlDbSettings.ConnectionString));
+// =============================================================================
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+if(app.Environment.IsDevelopment()) {
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

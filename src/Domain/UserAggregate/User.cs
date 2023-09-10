@@ -1,5 +1,6 @@
 namespace TwitterAPI.Domain {
 	public class User {
+		public int Id { get; set; }
 		public byte[] Color { get; private set; } = new byte[3];
 		public string At { get; private set; }
 		public string Username { get; private set; }
