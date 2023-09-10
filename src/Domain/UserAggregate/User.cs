@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TwitterAPI.Domain {
 	public class User {
 		public int Id { get; set; }
@@ -8,6 +10,6 @@ namespace TwitterAPI.Domain {
 		public string City { get; private set; }
 		public string Country { get; private set; }
 		public IList<Tweet> Tweets { get; private set; }
-		public IList<User> LikeHistory { get; private set; }
+		// public IList<Tweet> LikeHistory { get; private set; }
 	}
 }

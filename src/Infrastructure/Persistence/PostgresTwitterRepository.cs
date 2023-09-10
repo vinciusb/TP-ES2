@@ -4,12 +4,43 @@ using TwitterAPI.Domain;
 namespace TwitterAPI.Infrastructure.Persistence {
 	public class PostgresTwitterRepository : DbContext, ITwitterRepository {
 		// DB
+		private string ConnectionString { get; set; }
 		public DbSet<User> Users;
 
-		public PostgresTwitterRepository(DbContextOptions<PostgresTwitterRepository> opt) : base(opt) { }
+		public PostgresTwitterRepository(string connectionString) {
+			ConnectionString = connectionString;
+		}
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+			optionsBuilder.UseNpgsql(ConnectionString);
+		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
-			modelBuilder.Entity<User>();
+			// User
+			modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.Id);
+
+			modelBuilder.Entity<User>(e => {
+				e.Property(u => u.Color).HasMaxLength(3);
+				e.Property(u => u.At).HasMaxLength(20);
+				e.Property(u => u.Username).HasMaxLength(25);
+				e.Property(u => u.Bio).HasMaxLength(144);
+				e.Property(u => u.City).HasMaxLength(30);
+				e.Property(u => u.Country).HasMaxLength(30);
+			});
+
+			// Tweet
+			modelBuilder.Entity<Tweet>().ToTable("Tweets").HasKey(t => t.Id);
+
+			modelBuilder.Entity<Tweet>(e => {
+				e.Property(t => t.Text).HasMaxLength(144);
+			});
+
+			modelBuilder
+				.Entity<Tweet>()
+				.HasOne(e => e.Owner)
+				.WithOne()
+				.HasForeignKey<Tweet>("OwnerId")
+				.IsRequired();
 		}
 
 		// USER
