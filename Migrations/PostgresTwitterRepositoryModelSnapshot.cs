@@ -22,7 +22,40 @@ namespace TwitterAPI.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TwitterAPI.Domain.Tweet", b =>
+            modelBuilder.Entity("TweetTweet", b =>
+                {
+                    b.Property<int>("RepliesId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ReplyId");
+
+                    b.Property<int>("TweetId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ParentId");
+
+                    b.HasKey("RepliesId", "TweetId");
+
+                    b.HasIndex("TweetId");
+
+                    b.ToTable("TweetsReplies", (string)null);
+                });
+
+            modelBuilder.Entity("TweetUser", b =>
+                {
+                    b.Property<int>("LikeHistoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("TweetId");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LikeHistoryId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LikeHistory", (string)null);
+                });
+
+            modelBuilder.Entity("TwitterAPI.Application.Domain.Tweet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,6 +69,9 @@ namespace TwitterAPI.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("PostTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("ReplyToId")
                         .HasColumnType("integer");
 
@@ -44,22 +80,17 @@ namespace TwitterAPI.Migrations
                         .HasMaxLength(144)
                         .HasColumnType("character varying(144)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId")
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("ReplyToId")
                         .IsUnique();
-
-                    b.HasIndex("ReplyToId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Tweets", (string)null);
                 });
 
-            modelBuilder.Entity("TwitterAPI.Domain.User", b =>
+            modelBuilder.Entity("TwitterAPI.Application.Domain.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,15 +108,18 @@ namespace TwitterAPI.Migrations
                         .HasMaxLength(144)
                         .HasColumnType("character varying(144)");
 
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<byte[]>("Color")
+                    b.Property<string>("Color")
                         .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("bytea");
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
 
                     b.Property<string>("Country")
                         .IsRequired()
@@ -102,33 +136,54 @@ namespace TwitterAPI.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("TwitterAPI.Domain.Tweet", b =>
+            modelBuilder.Entity("TweetTweet", b =>
                 {
-                    b.HasOne("TwitterAPI.Domain.User", "Owner")
-                        .WithOne()
-                        .HasForeignKey("TwitterAPI.Domain.Tweet", "OwnerId")
+                    b.HasOne("TwitterAPI.Application.Domain.Tweet", null)
+                        .WithMany()
+                        .HasForeignKey("RepliesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TwitterAPI.Domain.Tweet", "ReplyTo")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReplyToId");
+                    b.HasOne("TwitterAPI.Application.Domain.Tweet", null)
+                        .WithMany()
+                        .HasForeignKey("TweetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.HasOne("TwitterAPI.Domain.User", null)
+            modelBuilder.Entity("TweetUser", b =>
+                {
+                    b.HasOne("TwitterAPI.Application.Domain.Tweet", null)
+                        .WithMany()
+                        .HasForeignKey("LikeHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TwitterAPI.Application.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TwitterAPI.Application.Domain.Tweet", b =>
+                {
+                    b.HasOne("TwitterAPI.Application.Domain.User", "Owner")
                         .WithMany("Tweets")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TwitterAPI.Application.Domain.Tweet", "ReplyTo")
+                        .WithOne()
+                        .HasForeignKey("TwitterAPI.Application.Domain.Tweet", "ReplyToId");
 
                     b.Navigation("Owner");
 
                     b.Navigation("ReplyTo");
                 });
 
-            modelBuilder.Entity("TwitterAPI.Domain.Tweet", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("TwitterAPI.Domain.User", b =>
+            modelBuilder.Entity("TwitterAPI.Application.Domain.User", b =>
                 {
                     b.Navigation("Tweets");
                 });

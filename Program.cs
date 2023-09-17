@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TwitterAPI.Infrastructure.Persistence;
 using TwitterAPI.Settings;
 
@@ -13,8 +13,8 @@ builder.Services.AddSwaggerGen();
 
 // =============================================================================
 var psqlDbSettings = builder.Configuration.GetSection(nameof(PostgresDbSettings)).Get<PostgresDbSettings>();
-builder.Services.AddSingleton(new PostgresTwitterRepository(psqlDbSettings.ConnectionString));
-builder.Services.AddDbContext<PostgresTwitterRepository>();
+builder.Services.AddSingleton<ITwitterRepository>(new PostgresTwitterRepository(psqlDbSettings.ConnectionString));
+builder.Services.AddDbContext<ITwitterRepository, PostgresTwitterRepository>();
 // =============================================================================
 
 var app = builder.Build();

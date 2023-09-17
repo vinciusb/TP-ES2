@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using TwitterAPI.Domain;
+using TwitterAPI.Application.Domain;
 
 namespace TwitterAPI.Infrastructure.Persistence {
 	public class PostgresTwitterRepository : DbContext, ITwitterRepository {
 		// DB
 		private string ConnectionString { get; set; }
-		public DbSet<User> Users;
+		public DbSet<User> Users { get; set; } = null!;
 
 		public PostgresTwitterRepository(string connectionString) {
 			ConnectionString = connectionString;
@@ -20,13 +20,42 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.Id);
 
 			modelBuilder.Entity<User>(e => {
-				e.Property(u => u.Color).HasMaxLength(3);
+				e.Property(u => u.Id).ValueGeneratedOnAdd();
+				e.Property(u => u.Color).HasMaxLength(6);
 				e.Property(u => u.At).HasMaxLength(20);
 				e.Property(u => u.Username).HasMaxLength(25);
 				e.Property(u => u.Bio).HasMaxLength(144);
 				e.Property(u => u.City).HasMaxLength(30);
 				e.Property(u => u.Country).HasMaxLength(30);
 			});
+			modelBuilder
+				.Entity<User>()
+				.HasMany(e => e.Tweets)
+				.WithOne(e => e.Owner)
+				.HasForeignKey("OwnerId")
+				.IsRequired();
+			modelBuilder
+				.Entity<User>()
+				.HasMany(e => e.LikeHistory)
+				.WithMany()
+				.UsingEntity(j => {
+					j.ToTable("LikeHistory");
+					j.Property("LikeHistoryId").HasColumnName("TweetId");
+				});
+
+			modelBuilder
+				.Entity<Tweet>()
+				.HasOne(t => t.ReplyTo)
+				.WithOne();
+			modelBuilder
+				.Entity<Tweet>()
+				.HasMany(t => t.Replies)
+				.WithMany()
+				.UsingEntity(t => {
+					t.ToTable("TweetsReplies");
+					t.Property("RepliesId").HasColumnName("ReplyId");
+					t.Property("TweetId").HasColumnName("ParentId");
+				});
 
 			// Tweet
 			modelBuilder.Entity<Tweet>().ToTable("Tweets").HasKey(t => t.Id);
@@ -34,19 +63,29 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			modelBuilder.Entity<Tweet>(e => {
 				e.Property(t => t.Text).HasMaxLength(144);
 			});
-
-			modelBuilder
-				.Entity<Tweet>()
-				.HasOne(e => e.Owner)
-				.WithOne()
-				.HasForeignKey<Tweet>("OwnerId")
-				.IsRequired();
 		}
 
-		// USER
+		// ======== USER =======================================================
+		public async Task<IEnumerable<User>> GetUsersAsync() {
+			return await Users.ToListAsync();
+		}
+
+		public async Task<User?> GetUserAsync(string str, bool searchMode) {
+			return await Users.Where(
+							searchMode ?
+							  (User u) => u.Username == str :
+							  (User u) => u.At == str
+						)
+						.FirstAsync();
+		}
+
+		public async Task<User?> GetUserAsync(int id) {
+			return await Users.Where(u => u.Id == id).FirstAsync();
+		}
+
 		public async Task<bool> CreateUserAsync(User user) {
-			var users = Users.Where(u => u.At == user.At);
-			if(users == null) {
+			// If there is no user with this at
+			if(!await Users.AnyAsync(u => u.At == user.At)) {
 				await Users.AddAsync(user);
 				await SaveChangesAsync();
 				return true;
@@ -55,18 +94,6 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		}
 
 		public async Task DeleteUserAsync(int id) {
-			throw new NotImplementedException();
-		}
-
-		public Task<User> GetUserAsync(string str, bool searchMode) {
-			throw new NotImplementedException();
-		}
-
-		public Task<User> GetUserAsync(int id) {
-			throw new NotImplementedException();
-		}
-
-		public Task<IEnumerable<User>> GetUsersAsync() {
 			throw new NotImplementedException();
 		}
 
