@@ -21,6 +21,16 @@ namespace TwitterAPI.Application.Utils {
 			};
 		}
 
+		public static UserDTO AsDTO(this User user) {
+			return new UserDTO(user.Color,
+							   user.At,
+							   user.Username,
+							   user.Bio,
+							   user.City,
+							   user.Country,
+							   user.BirthDate);
+		}
+
 		// Tweet
 	}
 }

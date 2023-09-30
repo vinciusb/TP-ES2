@@ -73,14 +73,14 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		public async Task<User?> GetUserAsync(string str, bool searchMode) {
 			return await Users.Where(
 							searchMode ?
-							  (User u) => u.Username == str :
-							  (User u) => u.At == str
+								(User u) => u.Username == str :
+								(User u) => u.At == str
 						)
-						.FirstAsync();
+						.FirstOrDefaultAsync();
 		}
 
 		public async Task<User?> GetUserAsync(int id) {
-			return await Users.Where(u => u.Id == id).FirstAsync();
+			return await Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 		}
 
 		public async Task<bool> CreateUserAsync(User user) {
