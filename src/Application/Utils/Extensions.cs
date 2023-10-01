@@ -32,5 +32,18 @@ namespace TwitterAPI.Application.Utils {
 		}
 
 		// Tweet
+		public static Tweet AsTweet(this PostTweetDTO tweet,
+									User owner,
+									Tweet? replyTo) {
+			return new Tweet {
+				Id = 0,
+				Owner = owner,
+				Text = tweet.Text,
+				Replies = new List<Tweet>(),
+				ReplyTo = replyTo,
+				Likes = 0,
+				PostTime = tweet.PostTime,
+			};
+		}
 	}
 }

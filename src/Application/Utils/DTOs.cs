@@ -9,4 +9,13 @@ namespace TwitterAPI.Application.Utils.DTO {
 						  DateOnly? BirthDate);
 
 	// Tweet
+	public record TweetDTO(string OwnerAt,
+						   string Text,
+							IList<PostTweetDTO> Replies);
+
+	public record PostTweetDTO(string OwnerAt,
+							   string Text,
+							   int ReplyToId,
+							   DateTime PostTime);
+
 }

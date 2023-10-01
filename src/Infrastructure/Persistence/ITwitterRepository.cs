@@ -1,4 +1,5 @@
 using TwitterAPI.Application.Domain;
+using TwitterAPI.Application.Utils.DTO;
 
 namespace TwitterAPI.Infrastructure.Persistence {
 	public interface ITwitterRepository {
@@ -28,12 +29,52 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		/// <param name="user"></param>
 		/// <returns> Returns true with the user was created and false otherwise. </returns>
 		Task<bool> CreateUserAsync(User user);
-		Task UpdateUserAsync(int id, User user);
-		Task DeleteUserAsync(int id);
-		Task Tweet(int id, Tweet tweet);
-		Task LikeTweet(User user, Tweet tweet, int tweetId);
-		Task UnlikeTweet(User user, Tweet tweet, int tweetId);
+		public Task UpdateUserProfileAsync(User user, UserDTO changedUser);
+		/// <summary>
+		/// Deletes a user.
+		/// </summary>
+		/// <param name="user"></param>
+		/// <returns></returns>
+		Task DeleteUserAsync(User user);
+		Task LikeTweetAsync(User user, Tweet tweet);
+		Task UnlikeTweetAsync(User user, Tweet tweet);
 
-		// Tweet table
+		/// ===============TWEET================================================
+		/// <summary>
+		/// Function that gets all the tweets.
+		/// </summary>
+		/// <returns> All the tweets existing in the database. </returns>
+		Task<IEnumerable<Tweet>> GetTweetsAsync();
+		/// <summary>
+		/// Get all the tweets of an certain user.
+		/// </summary>
+		/// <param name="at"></param>
+		/// <returns> All tweets of an certain user. </returns>
+		Task<IEnumerable<Tweet>> GetTweetsAsync(string at);
+		/// <summary>
+		/// Get all the tweets in a tweet sub tree (i.e. all its nested replies).
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns> A tweet nested replies. </returns>
+		Task<IEnumerable<Tweet>> GetTweetSubTreeAsync(int id);
+		/// <summary>
+		/// Gets a specific tweet.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns> A specific tweet. </returns>
+		Task<Tweet?> GetTweetAsync(int id);
+		/// <summary>
+		/// Publishes a tweet of an user.
+		/// </summary>
+		/// <param name="user"></param>
+		/// <param name="tweet"></param>
+		/// <returns></returns>
+		Task TweetAsync(User user, Tweet tweet);
+		/// <summary>
+		/// Deletes a tweet.
+		/// </summary>
+		/// <param name="tweet"></param>
+		/// <returns></returns>
+		Task DeleteTweetAsync(Tweet tweet);
 	}
 }

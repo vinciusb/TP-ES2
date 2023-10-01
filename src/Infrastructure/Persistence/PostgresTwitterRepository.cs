@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using TwitterAPI.Application.Domain;
+using TwitterAPI.Application.Utils.DTO;
 
 namespace TwitterAPI.Infrastructure.Persistence {
 	public class PostgresTwitterRepository : DbContext, ITwitterRepository {
 		// DB
 		private string ConnectionString { get; set; }
 		public DbSet<User> Users { get; set; } = null!;
+		public DbSet<Tweet> Tweets { get; set; } = null!;
 
 		public PostgresTwitterRepository(string connectionString) {
 			ConnectionString = connectionString;
@@ -93,24 +95,57 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			return false;
 		}
 
-		public async Task DeleteUserAsync(int id) {
+		public async Task UpdateUserProfileAsync(User user, UserDTO changedUser) {
+			user.Color = changedUser.Color;
+			user.Username = changedUser.Username;
+			user.Bio = changedUser.Bio;
+			user.City = changedUser.City;
+			user.Country = changedUser.Country;
+			user.BirthDate = changedUser.BirthDate;
+
+			await SaveChangesAsync();
+		}
+
+		public async Task DeleteUserAsync(User user) {
+			Users.Remove(user);
+			await SaveChangesAsync();
+		}
+
+		public async Task LikeTweetAsync(User user, Tweet tweet) {
 			throw new NotImplementedException();
 		}
 
-		public Task LikeTweet(User user, Tweet tweet, int tweetId) {
+		public async Task UnlikeTweetAsync(User user, Tweet tweet) {
 			throw new NotImplementedException();
 		}
 
-		public Task Tweet(int id, Tweet tweet) {
+		// ======== TWEET ======================================================
+
+		public async Task<IEnumerable<Tweet>> GetTweetsAsync() {
+			return await Tweets.ToListAsync();
+		}
+
+		public async Task<IEnumerable<Tweet>> GetTweetsAsync(string at) {
+			return await Tweets.Where(t => t.Owner.At == at).ToListAsync();
+		}
+
+		public async Task<IEnumerable<Tweet>> GetTweetSubTreeAsync(int id) {
 			throw new NotImplementedException();
 		}
 
-		public Task UnlikeTweet(User user, Tweet tweet, int tweetId) {
-			throw new NotImplementedException();
+		public async Task<Tweet?> GetTweetAsync(int id) {
+			return await Tweets.Where(t => t.Id == id).FirstOrDefaultAsync();
 		}
 
-		public Task UpdateUserAsync(int id, User user) {
-			throw new NotImplementedException();
+
+		public async Task TweetAsync(User user, Tweet tweet) {
+
+			await SaveChangesAsync();
+		}
+
+		public async Task DeleteTweetAsync(Tweet tweet) {
+			Tweets.Remove(tweet);
+			await SaveChangesAsync();
 		}
 	}
 }

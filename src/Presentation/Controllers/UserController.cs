@@ -35,17 +35,39 @@ namespace TwitterAPI.Presentation.Controllers {
 		public async Task<ActionResult> PostUser([FromBody] UserDTO user) {
 			User u = user.AsUser(new List<Tweet>(), new List<Tweet>());
 
-			if(await repo.CreateUserAsync(u)) {
-				return CreatedAtAction(nameof(GetUsers), new { at = user.At }, user);
-			}
+			if(!await repo.CreateUserAsync(u)) return BadRequest();
 
-			return BadRequest();
+			return CreatedAtAction(nameof(GetUsers), new { at = user.At }, user);
 		}
 
-		// [HttpPut]
-		// public async Task<ActionResult> PostUser([FromBody] UserDTO user) { }
+		[HttpPut]
+		public async Task<ActionResult> ChangeBasicInfos([FromBody] UserDTO modifiedUser) {
+			User? u = await repo.GetUserAsync(modifiedUser.At, false);
 
-		// [HttpDelete]
-		// public async Task<ActionResult> PostUser([FromBody] UserDTO user) { }
+			if(u == null) return BadRequest();
+
+			await repo.UpdateUserProfileAsync(u, modifiedUser);
+			return NoContent();
+		}
+
+		[HttpPut("likes/like")]
+		public async Task<ActionResult> LikeTweet([FromQuery] string at, [FromQuery] int tweetId) {
+			return NoContent();
+		}
+
+		[HttpPut("likes/unlike")]
+		public async Task<ActionResult> UnlikeTweet([FromQuery] string at, [FromQuery] int tweetId) {
+			return NoContent();
+		}
+
+		[HttpDelete]
+		public async Task<ActionResult> DeleteUser([FromQuery] string at) {
+			var user = await repo.GetUserAsync(at, false);
+
+			if(user == null) return BadRequest();
+
+			await repo.DeleteUserAsync(user);
+			return NoContent();
+		}
 	}
 }
