@@ -45,5 +45,12 @@ namespace TwitterAPI.Application.Utils {
 				PostTime = tweet.PostTime,
 			};
 		}
+
+		public static SimpleTweetDTO AsSimpleDTO(this Tweet tweet) {
+			return new SimpleTweetDTO(tweet.Id,
+			 						  tweet.Owner.At,
+									  tweet.Text,
+									  tweet.PostTime);
+		}
 	}
 }

@@ -64,12 +64,11 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		/// <returns> A specific tweet. </returns>
 		Task<Tweet?> GetTweetAsync(int id);
 		/// <summary>
-		/// Publishes a tweet of an user.
+		/// Publishes a tweet.
 		/// </summary>
-		/// <param name="user"></param>
 		/// <param name="tweet"></param>
 		/// <returns></returns>
-		Task TweetAsync(User user, Tweet tweet);
+		Task TweetAsync(Tweet tweet);
 		/// <summary>
 		/// Deletes a tweet.
 		/// </summary>

@@ -16,18 +16,37 @@ namespace TwitterAPI.Presentation.Controllers {
 			_logger = logger;
 		}
 
+		[HttpGet]
+		public async Task<IEnumerable<SimpleTweetDTO?>> GetTweet([FromQuery] string? at, [FromQuery] int? id) {
+			IEnumerable<Tweet> tweets;
+
+			// Get by identifier
+			if(at != null) tweets = await repo.GetTweetsAsync(at);
+			else if(id != null) {
+				var t = await repo.GetTweetAsync((int)id);
+				tweets = t == null ? new List<Tweet>() { } : new List<Tweet>() { t };
+			} else tweets = await repo.GetTweetsAsync();
+
+			return tweets.Select(t => t.AsSimpleDTO());
+		}
+
+		[HttpGet("subtree")]
+		public async Task<ActionResult> GetTweetSubtree([FromQuery] int id) {
+			return BadRequest();
+		}
+
 		[HttpPost]
-		public async Task<ActionResult> Tweet([FromQuery] string at, [FromBody] PostTweetDTO tweet) {
-			// User? u = await repo.GetUserAsync(at, false);
+		public async Task<ActionResult> Tweet([FromBody] PostTweetDTO tweet) {
+			User? owner = await repo.GetUserAsync(tweet.OwnerAt, false);
 
-			// if(u == null) return BadRequest();
+			if(owner == null) return BadRequest();
 
-			// Tweet? replyTo = ;
+			Tweet? replyTo = tweet.ReplyToId == null ? null : await repo.GetTweetAsync((int)tweet.ReplyToId);
 
-			// Tweet t = tweet.AsTweet();
+			Tweet toCreateTweet = tweet.AsTweet(owner, replyTo);
+			await repo.TweetAsync(toCreateTweet);
 
-			// // return CreatedAtAction(nameof(GetUsers), new { at = user.At }, user);
-			// return CreatedAtAction("", new { }, t);
+			return CreatedAtAction(nameof(GetTweet), new { Id = toCreateTweet.Id }, toCreateTweet.AsSimpleDTO());
 		}
 	}
 }

@@ -122,24 +122,38 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		// ======== TWEET ======================================================
 
 		public async Task<IEnumerable<Tweet>> GetTweetsAsync() {
-			return await Tweets.ToListAsync();
+			return await Tweets
+						 .Include(t => t.Owner)
+						 .Include(t => t.Replies)
+						 .Include(t => t.ReplyTo)
+						 .ToListAsync();
 		}
 
 		public async Task<IEnumerable<Tweet>> GetTweetsAsync(string at) {
-			return await Tweets.Where(t => t.Owner.At == at).ToListAsync();
+			return await Tweets
+						 .Where(t => t.Owner.At == at)
+						 .Include(t => t.Owner)
+						 .Include(t => t.Replies)
+						 .Include(t => t.ReplyTo)
+						 .ToListAsync();
+		}
+
+		public async Task<Tweet?> GetTweetAsync(int id) {
+			return await Tweets
+						 .Where(t => t.Id == id)
+						 .Include(t => t.Owner)
+						 .Include(t => t.Replies)
+						 .Include(t => t.ReplyTo)
+						 .FirstOrDefaultAsync();
 		}
 
 		public async Task<IEnumerable<Tweet>> GetTweetSubTreeAsync(int id) {
 			throw new NotImplementedException();
 		}
 
-		public async Task<Tweet?> GetTweetAsync(int id) {
-			return await Tweets.Where(t => t.Id == id).FirstOrDefaultAsync();
-		}
 
-
-		public async Task TweetAsync(User user, Tweet tweet) {
-
+		public async Task TweetAsync(Tweet tweet) {
+			await Tweets.AddAsync(tweet);
 			await SaveChangesAsync();
 		}
 
