@@ -58,6 +58,11 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		/// <returns> A tweet nested replies. </returns>
 		Task<Tweet> GetTweetSubTreeAsync(int id);
 		/// <summary>
+		/// Get an timeline based on tweets relevance.
+		/// </summary>
+		/// <returns> All tweets in a certain order based on their relevance. </returns>
+		Task<IEnumerable<Tweet>> GetTimelineAsync();
+		/// <summary>
 		/// Gets a specific tweet.
 		/// </summary>
 		/// <param name="id"></param>

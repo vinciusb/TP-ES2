@@ -196,6 +196,67 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			return x;
 		}
 
+		public async Task<IEnumerable<Tweet>> GetTimelineAsync() {
+			var rootTweets = Tweets.Where(t => t.ReplyTo == null).ToList();
+			var rootTrees = new List<Tweet>();
+
+			foreach(var rootTweet in rootTweets) {
+				rootTrees.Add(await GetTweetSubTreeAsync(rootTweet.Id));
+			}
+
+			var tweetIdToScoreMap = new Dictionary<int, (int, int)>();
+			foreach(var tree in rootTrees) {
+				// Gets a dictionary mapping [Tweet Id] -> [numer of likes, number of children tweets]
+				GetTreeDescriptionRecursively(tree, tweetIdToScoreMap);
+			}
+
+			var tweetsDict = (await GetTweetsAsync()).ToDictionary(t => t.Id, t => t);
+
+			var currentDate = DateTime.Now;
+			var timelineIds = tweetIdToScoreMap
+								.Select(pair =>
+									(pair.Key, CalculateTweetScore(pair.Value,
+																   currentDate,
+																   tweetsDict[pair.Key].PostTime
+																   ))
+								)
+								.OrderByDescending(scorePair => scorePair.Item2)
+								.Select(pair => pair.Key);
+
+			return timelineIds.Select(id => tweetsDict[id]);
+		}
+
+		private int GetTreeDescriptionRecursively(Tweet root, IDictionary<int, (int, int)> dict) {
+			int totalChildrenNumber = 0;
+
+			foreach(var reply in root.Replies) {
+				var howManyChildren = GetTreeDescriptionRecursively(reply, dict);
+				totalChildrenNumber += howManyChildren + 1;
+			}
+
+			dict.Add(root.Id, (root.Likes, totalChildrenNumber));
+			return totalChildrenNumber;
+		}
+
+		private static int CalculateTweetScore((int, int) likesAndReplies,
+										DateTime currentDate,
+										DateTime tweetDate) {
+			// This variables try to balance the timeline in terms of how relevance is built.
+			const int LIKE_WEIGHT = 100;
+			const int REPLY_WEIGHT = 70;
+			// ATTENTION: INCREASING THIS VARIABLE TOO MUCH WILL TURN THE SOCIAL MEDIA TOO IMMEDIATIST
+			const int TWEET_DEPRECATION_VALUE_PER_HOUR = 3;
+			const int HOUR_SATURATION = 24;
+
+			var (likes, replies) = likesAndReplies;
+			var timeSpan = currentDate - tweetDate;
+			var howManyHoursHavePassed = Math.Min(Convert.ToInt32(timeSpan.TotalHours), HOUR_SATURATION);
+
+			return (likes * LIKE_WEIGHT) +
+				   (replies * REPLY_WEIGHT) -
+				   (howManyHoursHavePassed * TWEET_DEPRECATION_VALUE_PER_HOUR);
+		}
+
 		public async Task TweetAsync(Tweet tweet) {
 			await Tweets.AddAsync(tweet);
 

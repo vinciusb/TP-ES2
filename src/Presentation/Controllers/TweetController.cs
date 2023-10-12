@@ -36,6 +36,12 @@ namespace TwitterAPI.Presentation.Controllers {
 			return tweetSubTree.AsFullTweetDTO();
 		}
 
+		[HttpGet("timeline")]
+		public async Task<IEnumerable<SimpleTweetDTO>> GetTimeline() {
+			var timeline = await repo.GetTimelineAsync();
+			return timeline.Select(tweet => tweet.AsSimpleDTO());
+		}
+
 		[HttpPost]
 		public async Task<ActionResult> Tweet([FromBody] PostTweetDTO tweet) {
 			User? owner = await repo.GetUserAsync(tweet.OwnerAt, false);
