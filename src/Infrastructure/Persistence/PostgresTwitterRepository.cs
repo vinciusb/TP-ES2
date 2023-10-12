@@ -169,6 +169,11 @@ namespace TwitterAPI.Infrastructure.Persistence {
 
 		public async Task TweetAsync(Tweet tweet) {
 			await Tweets.AddAsync(tweet);
+
+			Tweet? parentTweet = tweet.ReplyTo;
+			if(parentTweet != null)
+				parentTweet.Replies.Add(tweet);
+
 			await SaveChangesAsync();
 		}
 

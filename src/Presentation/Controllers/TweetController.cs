@@ -41,7 +41,13 @@ namespace TwitterAPI.Presentation.Controllers {
 
 			if(owner == null) return BadRequest();
 
-			Tweet? replyTo = tweet.ReplyToId == null ? null : await repo.GetTweetAsync((int)tweet.ReplyToId);
+			Tweet? replyTo;
+			if(tweet.ReplyToId == null) replyTo = null;
+			else {
+				replyTo = await repo.GetTweetAsync((int)tweet.ReplyToId);
+				// If the client sent a id but it's invalid
+				if(replyTo == null) return BadRequest();
+			}
 
 			Tweet toCreateTweet = tweet.AsTweet(owner, replyTo);
 			await repo.TweetAsync(toCreateTweet);
@@ -57,7 +63,7 @@ namespace TwitterAPI.Presentation.Controllers {
 
 			// Se a deleção de tweet não apagar as respostas, deixa as resposta pra tweets apagados, não tem problema
 			await repo.DeleteTweetAsync(tweet);
-			
+
 			return NoContent();
 		}
 	}
