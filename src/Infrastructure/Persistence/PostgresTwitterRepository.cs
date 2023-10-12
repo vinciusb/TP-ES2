@@ -37,17 +37,17 @@ namespace TwitterAPI.Infrastructure.Persistence {
 
 			// Relations
 			modelBuilder.Entity<User>()
-				.HasMany(e => e.Tweets)
-				.WithOne(e => e.Owner)
-				.HasForeignKey("OwnerId")
-				.IsRequired();
+						.HasMany(e => e.Tweets)
+						.WithOne(e => e.Owner)
+						.HasForeignKey("OwnerId")
+						.IsRequired();
 			modelBuilder.Entity<User>()
-				.HasMany(e => e.LikeHistory)
-				.WithMany()
-				.UsingEntity(j => {
-					j.ToTable("LikeHistory");
-					j.Property("LikeHistoryId").HasColumnName("TweetId");
-				});
+						.HasMany(e => e.LikeHistory)
+						.WithMany()
+						.UsingEntity(j => {
+							j.ToTable("LikeHistory");
+							j.Property("LikeHistoryId").HasColumnName("TweetId");
+						});
 		}
 
 		private static void ConfigurateTweetsDB(ModelBuilder modelBuilder) {
@@ -59,16 +59,16 @@ namespace TwitterAPI.Infrastructure.Persistence {
 
 			// Relations
 			modelBuilder.Entity<Tweet>()
-				.HasOne(t => t.ReplyTo)
-				.WithMany();
+						.HasOne(t => t.ReplyTo)
+						.WithMany();
 			modelBuilder.Entity<Tweet>()
-				.HasMany(t => t.Replies)
-				.WithMany()
-				.UsingEntity(t => {
-					t.ToTable("TweetsReplies");
-					t.Property("RepliesId").HasColumnName("ReplyId");
-					t.Property("TweetId").HasColumnName("ParentId");
-			});
+						.HasMany(t => t.Replies)
+						.WithMany()
+						.UsingEntity(t => {
+							t.ToTable("TweetsReplies");
+							t.Property("RepliesId").HasColumnName("ReplyId");
+							t.Property("TweetId").HasColumnName("ParentId");
+						});
 		}
 
 		// ======== USER =======================================================
@@ -167,39 +167,23 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		}
 
 		public async Task<Tweet> GetTweetSubTreeAsync(int id) {
-			var x = await Tweets
-						 .Where(t => t.Id == id)
-						 .Include(t => t.Owner)
-						 .Include(t => t.Replies)
-						 .Include(t => t.ReplyTo)
-						 .FirstOrDefaultAsync();
-			if(x == null) throw new Exception("Tweet does not exists");
+			var rootTweet = await GetTweetAsync(id);
 
-			var stack = new Stack<Tweet>();
-			stack.Push(x);
+			await LoadRepliesRecursively(rootTweet);
 
-			while(stack.Count() != 0) {
-				var t = stack.Pop();
-
-				foreach(var reply in t.Replies) {
-					// Since efcore works with a reference system, when we load
-					// an full included tweet reference, the current reference
-					// of the tweet just get updated, then we do not need to
-					// substitute t.Replies
-					await Tweets
-							.Where(t => t.Id == reply.Id)
-							.Include(t => t.Owner)
-							.Include(t => t.Replies)
-							.Include(t => t.ReplyTo)
-							.FirstOrDefaultAsync();
-
-					stack.Push(reply);
-				}
-			}
-
-			return x;
+			return rootTweet;
 		}
 
+		private async Task LoadRepliesRecursively(Tweet root) {
+			foreach(var reply in root.Replies) {
+				// Since efcore works with a reference system, when we load
+				// an full included tweet reference, the current reference
+				// of the tweet just get updated, then we do not need to
+				// substitute t.Replies
+				await GetTweetAsync(reply.Id);
+				await LoadRepliesRecursively(reply);
+			}
+		}
 		public async Task<IEnumerable<Tweet>> GetTimelineAsync() {
 			var rootTweets = Tweets.Where(t => t.ReplyTo == null).ToList();
 			var rootTrees = new List<Tweet>();
