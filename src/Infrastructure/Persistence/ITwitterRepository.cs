@@ -56,7 +56,7 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns> A tweet nested replies. </returns>
-		Task<IEnumerable<Tweet>> GetTweetSubTreeAsync(int id);
+		Task<Tweet> GetTweetSubTreeAsync(int id);
 		/// <summary>
 		/// Gets a specific tweet.
 		/// </summary>

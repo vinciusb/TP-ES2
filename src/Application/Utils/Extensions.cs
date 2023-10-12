@@ -52,5 +52,44 @@ namespace TwitterAPI.Application.Utils {
 									  tweet.Text,
 									  tweet.PostTime);
 		}
+
+		public static FullTweetDTO AsFullTweetDTO(this Tweet tweet) {
+			var replyTo = tweet.ReplyTo;
+			var simplifiedParent = replyTo == null ? null :
+				new SimpleTweetDTO(
+					replyTo.Id,
+					replyTo.Owner.At,
+					replyTo.Text,
+					replyTo.PostTime);
+
+			var fullReplies = new List<FullNoParentingTweetDTO>();
+
+			var stack = new Stack<(Tweet, List<FullNoParentingTweetDTO>)>();
+			stack.Push((tweet, fullReplies));
+
+			while(stack.Count() != 0) {
+				var (t, r) = stack.Pop();
+
+				foreach(var reply in t.Replies) {
+					var cL = new List<FullNoParentingTweetDTO>();
+					var nR = new FullNoParentingTweetDTO(
+									reply.Id,
+									reply.Owner.At,
+									reply.Text,
+									reply.PostTime,
+									cL);
+					r.Add(nR);
+					stack.Push((reply, cL));
+				}
+			}
+
+			return new FullTweetDTO(
+						tweet.Id,
+						tweet.Owner.At,
+						tweet.Text,
+						simplifiedParent,
+						tweet.PostTime,
+						fullReplies);
+		}
 	}
 }

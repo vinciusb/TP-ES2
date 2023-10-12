@@ -31,8 +31,9 @@ namespace TwitterAPI.Presentation.Controllers {
 		}
 
 		[HttpGet("subtree")]
-		public async Task<ActionResult> GetTweetSubtree([FromQuery] int id) {
-			return BadRequest();
+		public async Task<FullTweetDTO> GetTweetSubtree([FromQuery] int id) {
+			var tweetSubTree = await repo.GetTweetSubTreeAsync(id);
+			return tweetSubTree.AsFullTweetDTO();
 		}
 
 		[HttpPost]

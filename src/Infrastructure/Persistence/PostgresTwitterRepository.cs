@@ -162,10 +162,39 @@ namespace TwitterAPI.Infrastructure.Persistence {
 						 .FirstOrDefaultAsync();
 		}
 
-		public async Task<IEnumerable<Tweet>> GetTweetSubTreeAsync(int id) {
-			throw new NotImplementedException();
-		}
+		public async Task<Tweet> GetTweetSubTreeAsync(int id) {
+			var x = await Tweets
+						 .Where(t => t.Id == id)
+						 .Include(t => t.Owner)
+						 .Include(t => t.Replies)
+						 .Include(t => t.ReplyTo)
+						 .FirstOrDefaultAsync();
+			if(x == null) throw new Exception("Tweet does not exists");
 
+			var stack = new Stack<Tweet>();
+			stack.Push(x);
+
+			while(stack.Count() != 0) {
+				var t = stack.Pop();
+
+				foreach(var reply in t.Replies) {
+					// Since efcore works with a reference system, when we load
+					// an full included tweet reference, the current reference
+					// of the tweet just get updated, then we do not need to
+					// substitute t.Replies
+					await Tweets
+							.Where(t => t.Id == reply.Id)
+							.Include(t => t.Owner)
+							.Include(t => t.Replies)
+							.Include(t => t.ReplyTo)
+							.FirstOrDefaultAsync();
+
+					stack.Push(reply);
+				}
+			}
+
+			return x;
+		}
 
 		public async Task TweetAsync(Tweet tweet) {
 			await Tweets.AddAsync(tweet);
