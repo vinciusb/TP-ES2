@@ -18,10 +18,14 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
-			// User
-			modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.Id);
+			ConfigurateUsersDB(modelBuilder);
+			ConfigurateTweetsDB(modelBuilder);
+		}
 
+		private static void ConfigurateUsersDB(ModelBuilder modelBuilder) {
 			modelBuilder.Entity<User>(e => {
+				e.ToTable("Users").HasKey(u => u.Id);
+
 				e.Property(u => u.Id).ValueGeneratedOnAdd();
 				e.Property(u => u.Color).HasMaxLength(6);
 				e.Property(u => u.At).HasMaxLength(20);
@@ -30,40 +34,40 @@ namespace TwitterAPI.Infrastructure.Persistence {
 				e.Property(u => u.City).HasMaxLength(30);
 				e.Property(u => u.Country).HasMaxLength(30);
 			});
-			modelBuilder
-				.Entity<User>()
+
+			// Relations
+			modelBuilder.Entity<User>()
 				.HasMany(e => e.Tweets)
 				.WithOne(e => e.Owner)
 				.HasForeignKey("OwnerId")
 				.IsRequired();
-			modelBuilder
-				.Entity<User>()
+			modelBuilder.Entity<User>()
 				.HasMany(e => e.LikeHistory)
 				.WithMany()
 				.UsingEntity(j => {
 					j.ToTable("LikeHistory");
 					j.Property("LikeHistoryId").HasColumnName("TweetId");
 				});
+		}
 
-			modelBuilder
-				.Entity<Tweet>()
+		private static void ConfigurateTweetsDB(ModelBuilder modelBuilder) {
+			modelBuilder.Entity<Tweet>(e => {
+				e.ToTable("Tweets").HasKey(t => t.Id);
+
+				e.Property(t => t.Text).HasMaxLength(144);
+			});
+
+			// Relations
+			modelBuilder.Entity<Tweet>()
 				.HasOne(t => t.ReplyTo)
 				.WithMany();
-			modelBuilder
-				.Entity<Tweet>()
+			modelBuilder.Entity<Tweet>()
 				.HasMany(t => t.Replies)
 				.WithMany()
 				.UsingEntity(t => {
 					t.ToTable("TweetsReplies");
 					t.Property("RepliesId").HasColumnName("ReplyId");
 					t.Property("TweetId").HasColumnName("ParentId");
-				});
-
-			// Tweet
-			modelBuilder.Entity<Tweet>().ToTable("Tweets").HasKey(t => t.Id);
-
-			modelBuilder.Entity<Tweet>(e => {
-				e.Property(t => t.Text).HasMaxLength(144);
 			});
 		}
 
