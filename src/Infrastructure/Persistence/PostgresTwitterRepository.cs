@@ -48,7 +48,7 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			modelBuilder
 				.Entity<Tweet>()
 				.HasOne(t => t.ReplyTo)
-				.WithOne();
+				.WithMany();
 			modelBuilder
 				.Entity<Tweet>()
 				.HasMany(t => t.Replies)
