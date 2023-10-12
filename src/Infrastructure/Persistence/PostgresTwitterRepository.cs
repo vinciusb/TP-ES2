@@ -69,7 +69,10 @@ namespace TwitterAPI.Infrastructure.Persistence {
 
 		// ======== USER =======================================================
 		public async Task<IEnumerable<User>> GetUsersAsync() {
-			return await Users.ToListAsync();
+			return await Users
+						 .Include(u => u.Tweets)
+						 .Include(u => u.LikeHistory)
+						 .ToListAsync();
 		}
 
 		public async Task<User?> GetUserAsync(string str, bool searchMode) {
@@ -78,11 +81,17 @@ namespace TwitterAPI.Infrastructure.Persistence {
 								(User u) => u.Username == str :
 								(User u) => u.At == str
 						)
+						.Include(u => u.Tweets)
+						.Include(u => u.LikeHistory)
 						.FirstOrDefaultAsync();
 		}
 
 		public async Task<User?> GetUserAsync(int id) {
-			return await Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+			return await Users
+						 .Include(u => u.Tweets)
+						 .Include(u => u.LikeHistory)
+						 .Where(u => u.Id == id)
+						 .FirstOrDefaultAsync();
 		}
 
 		public async Task<bool> CreateUserAsync(User user) {
@@ -112,11 +121,17 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		}
 
 		public async Task LikeTweetAsync(User user, Tweet tweet) {
-			throw new NotImplementedException();
+			user.LikeHistory.Add(tweet);
+			tweet.Likes++;
+
+			await SaveChangesAsync();
 		}
 
 		public async Task UnlikeTweetAsync(User user, Tweet tweet) {
-			throw new NotImplementedException();
+			user.LikeHistory.Remove(tweet);
+			tweet.Likes--;
+
+			await SaveChangesAsync();
 		}
 
 		// ======== TWEET ======================================================

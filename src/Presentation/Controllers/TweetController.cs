@@ -48,5 +48,17 @@ namespace TwitterAPI.Presentation.Controllers {
 
 			return CreatedAtAction(nameof(GetTweet), new { Id = toCreateTweet.Id }, toCreateTweet.AsSimpleDTO());
 		}
+
+		[HttpDelete]
+		public async Task<ActionResult> DeleteTweet([FromQuery] int id) {
+			Tweet? tweet = await repo.GetTweetAsync(id);
+
+			if(tweet == null) return BadRequest();
+
+			// Se a deleção de tweet não apagar as respostas, deixa as resposta pra tweets apagados, não tem problema
+			await repo.DeleteTweetAsync(tweet);
+			
+			return NoContent();
+		}
 	}
 }

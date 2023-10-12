@@ -52,11 +52,33 @@ namespace TwitterAPI.Presentation.Controllers {
 
 		[HttpPut("likes/like")]
 		public async Task<ActionResult> LikeTweet([FromQuery] string at, [FromQuery] int tweetId) {
+			User? user = await repo.GetUserAsync(at, false);
+			if(user == null) return BadRequest();
+
+			Tweet? tweet = await repo.GetTweetAsync(tweetId);
+			if(tweet == null) return BadRequest();
+
+			bool userHasAlreadyLiked = user.LikeHistory.Any(t => t.Id == tweet.Id);
+			if(userHasAlreadyLiked)
+				return BadRequest();
+
+			await repo.LikeTweetAsync(user, tweet);
 			return NoContent();
 		}
 
 		[HttpPut("likes/unlike")]
 		public async Task<ActionResult> UnlikeTweet([FromQuery] string at, [FromQuery] int tweetId) {
+			User? user = await repo.GetUserAsync(at, false);
+			if(user == null) return BadRequest();
+
+			Tweet? tweet = await repo.GetTweetAsync(tweetId);
+			if(tweet == null) return BadRequest();
+
+			bool userHasAlreadyLiked = user.LikeHistory.Any(t => t.Id == tweet.Id);
+			if(!userHasAlreadyLiked)
+				return BadRequest();
+
+			await repo.UnlikeTweetAsync(user, tweet);
 			return NoContent();
 		}
 
