@@ -36,7 +36,7 @@ namespace TwitterAPI.Presentation.Controllers {
 			if(tweet == null) return BadRequest();
 
 			var tweetSubTree = await repo.GetTweetSubTreeAsync(id);
-			return Ok(tweetSubTree.AsFullTweetDTO());
+			return Ok(tweetSubTree.AsRecursiveTree());
 		}
 
 		[HttpGet("timeline")]

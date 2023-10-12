@@ -53,43 +53,50 @@ namespace TwitterAPI.Application.Utils {
 									  tweet.PostTime);
 		}
 
-		public static FullTweetDTO AsFullTweetDTO(this Tweet tweet) {
-			var replyTo = tweet.ReplyTo;
-			var simplifiedParent = replyTo == null ? null :
-				new SimpleTweetDTO(
-					replyTo.Id,
-					replyTo.Owner.At,
-					replyTo.Text,
-					replyTo.PostTime);
+		public static FullNoParentingTweetDTO AsNoParentingTweetDTO(this Tweet tweet,
+																	IEnumerable<FullNoParentingTweetDTO> tweetReplies) {
+			return new FullNoParentingTweetDTO(tweet.Id,
+											   tweet.Owner.At,
+											   tweet.Text,
+											   tweet.PostTime,
+											   tweetReplies);
+		}
 
-			var fullReplies = new List<FullNoParentingTweetDTO>();
+		public static FullTweetDTO AsRecursiveTree(this Tweet rootTweet) {
+			var replyTo = rootTweet.ReplyTo;
+			var simplifiedParent = replyTo == null ?
+									null :
+									rootTweet.AsSimpleDTO();
 
-			var stack = new Stack<(Tweet, List<FullNoParentingTweetDTO>)>();
-			stack.Push((tweet, fullReplies));
+			var rootTweetReplies = new List<FullNoParentingTweetDTO>();
 
-			while(stack.Count() != 0) {
-				var (t, r) = stack.Pop();
+			var treeIterationStack = new Stack<(Tweet, List<FullNoParentingTweetDTO>)>();
+			treeIterationStack.Push((rootTweet, rootTweetReplies));
 
-				foreach(var reply in t.Replies) {
-					var cL = new List<FullNoParentingTweetDTO>();
-					var nR = new FullNoParentingTweetDTO(
-									reply.Id,
-									reply.Owner.At,
-									reply.Text,
-									reply.PostTime,
-									cL);
-					r.Add(nR);
-					stack.Push((reply, cL));
+			while(treeIterationStack.Count != 0) {
+				var (parentTweet, parentTweetReplies) = treeIterationStack.Pop();
+
+				foreach(var reply in parentTweet.Replies) {
+					var nextListOfReplies = new List<FullNoParentingTweetDTO>();
+					var nextReply = reply.AsNoParentingTweetDTO(nextListOfReplies);
+
+					parentTweetReplies.Add(nextReply);
+					treeIterationStack.Push((reply, nextListOfReplies));
 				}
 			}
 
-			return new FullTweetDTO(
-						tweet.Id,
-						tweet.Owner.At,
-						tweet.Text,
-						simplifiedParent,
-						tweet.PostTime,
-						fullReplies);
+			return rootTweet.AsFullTweetDTO(simplifiedParent, rootTweetReplies);
+		}
+
+		public static FullTweetDTO AsFullTweetDTO(this Tweet rootTweet,
+												  SimpleTweetDTO? simplifiedParent,
+												  IEnumerable<FullNoParentingTweetDTO> tweetReplies) {
+			return new FullTweetDTO(rootTweet.Id,
+									rootTweet.Owner.At,
+									rootTweet.Text,
+									simplifiedParent,
+									rootTweet.PostTime,
+									tweetReplies);
 		}
 	}
 }
