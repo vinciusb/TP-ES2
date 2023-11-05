@@ -227,8 +227,8 @@ namespace TwitterAPI.Infrastructure.Persistence {
 		}
 
 		private static int CalculateTweetScore((int, int) likesAndReplies,
-										DateTime currentDate,
-										DateTime tweetDate) {
+											   DateTime currentDate,
+											   DateTime tweetDate) {
 			// This variables try to balance the timeline in terms of how relevance is built.
 			const int LIKE_WEIGHT = 100;
 			const int REPLY_WEIGHT = 70;
