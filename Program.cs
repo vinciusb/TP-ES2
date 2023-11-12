@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 
 // =============================================================================
 var psqlDbSettings = builder.Configuration.GetSection(nameof(PostgresDbSettings)).Get<PostgresDbSettings>();
-builder.Services.AddSingleton<ITwitterRepository>(new PostgresTwitterRepository(psqlDbSettings.ConnectionString));
+builder.Services.AddScoped<ITwitterRepository>(s => new PostgresTwitterRepository(psqlDbSettings.ConnectionString));
 builder.Services.AddDbContext<ITwitterRepository, PostgresTwitterRepository>();
 // =============================================================================
 

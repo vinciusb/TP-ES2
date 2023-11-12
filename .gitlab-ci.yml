@@ -1,6 +1,6 @@
 stages:
-  # - build
-  - test
+  - unit-test
+  - integration-test
 
 unit-test:
   stage: test

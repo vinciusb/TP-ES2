@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace TwitterAPI.Application.Domain {
 	public class User {
 		public int Id { get; set; }
@@ -12,5 +10,20 @@ namespace TwitterAPI.Application.Domain {
 		public DateOnly? BirthDate { get; set; }
 		public IList<Tweet> Tweets { get; set; } = null!;
 		public IList<Tweet> LikeHistory { get; set; } = null!;
+
+		public bool Equals(User other) {
+			if(other == null) return false;
+
+			return Id == other.Id &&
+				   Color == other.Color &&
+				   At == other.At &&
+				   Username == other.Username &&
+				   Bio == other.Bio &&
+				   City == other.City &&
+				   Country == other.Country &&
+				   BirthDate == other.BirthDate &&
+				   Tweets == other.Tweets &&
+				   LikeHistory == other.LikeHistory;
+		}
 	}
 }
