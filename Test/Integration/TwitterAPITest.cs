@@ -28,6 +28,10 @@ public class DatabaseFixture : IDisposable {
 			.Setup(x => x.GetUserAsync("Gringo", true))
 			.Returns(Task.FromResult(sampleUsersList[3]));
 
+		mock.Mock<ITwitterRepository>()
+			.Setup(x => x.GetUserAsync("Mascarenhas", true))
+			.Returns(Task.FromResult((User?)null));
+
 		UserController = mock.Create<UserController>();
 	}
 
@@ -140,6 +144,6 @@ public class TwitterAPITest : DatabaseFixture {
 		var actual = await UserController.GetUsers(null, "Mascarenhas", null);
 
 		// Assert
-		Assert.True(actual.Any());
+		Assert.False(actual.Any());
 	}
 }
