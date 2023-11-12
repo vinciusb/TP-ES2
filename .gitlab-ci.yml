@@ -3,13 +3,13 @@ stages:
   - integration-test
 
 unit-test:
-  stage: test
+  stage: unit-test
   image: mcr.microsoft.com/dotnet/sdk:7.0
   script:
     - dotnet test ./Test/Unit/Unit.csproj
 
 integration-test:
-  stage: test
+  stage: integration-test
   image: mcr.microsoft.com/dotnet/sdk:7.0
   script:
     - dotnet test ./Test/Integration/Integration.csproj
