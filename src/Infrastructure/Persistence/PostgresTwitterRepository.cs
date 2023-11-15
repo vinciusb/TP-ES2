@@ -214,7 +214,7 @@ namespace TwitterAPI.Infrastructure.Persistence {
 			return timelineIds.Select(id => tweetsDict[id]);
 		}
 
-		private int GetTreeDescriptionRecursively(Tweet root, IDictionary<int, (int, int)> dict) {
+		protected int GetTreeDescriptionRecursively(Tweet root, IDictionary<int, (int, int)> dict) {
 			int totalChildrenNumber = 0;
 
 			foreach(var reply in root.Replies) {
