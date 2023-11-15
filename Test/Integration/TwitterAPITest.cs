@@ -29,14 +29,17 @@ public class DatabaseFixture : IDisposable {
 			.Returns(Task.FromResult(sampleUsersList[3]));
 
 		mock.Mock<ITwitterRepository>()
+			.Setup(x => x.GetUserAsync(5))
+			.Returns(Task.FromResult(sampleUsersList[4]));
+
+		mock.Mock<ITwitterRepository>()
 			.Setup(x => x.GetUserAsync("Mascarenhas", true))
 			.Returns(Task.FromResult((User?)null));
 
 		UserController = mock.Create<UserController>();
 	}
 
-	public void Dispose() {
-	}
+	public void Dispose() { }
 
 	public static IEnumerable<User> GetSampleUsers() {
 		return new List<User>() {
@@ -111,39 +114,55 @@ public class TwitterAPITest : DatabaseFixture {
 	}
 
 	[Fact]
-	public async Task TestGetUsers_GetRegisteredUserFromAt() {
+	public async Task TestGetUsers_GetRegisteredUserFromAt_ShouldReturnOneUser() {
 		// Arrange
 		var expected = GetSampleUsers().First();
 
 		// Act
-		var actual = (await UserController.GetUsers("vinciusb", null, null)).First();
+		var actual = await UserController.GetUsers("vinciusb", null, null);
 
 		// Assert
 		Assert.True(actual != null);
-		Assert.Equal(expected.AsDTO(), actual);
+		Assert.Single(actual);
+		Assert.Equal(expected.AsDTO(), actual.First());
 	}
 
 	[Fact]
-	public async Task TestGetUsers_GetRegisteredUserFromUsername() {
+	public async Task TestGetUsers_GetRegisteredUserFromUsername_ShouldReturnOneUser() {
 		// Arrange
 		var expected = GetSampleUsers().ToList()[3];
 
 		// Act
-		var actual = (await UserController.GetUsers(null, "Gringo", null)).First();
+		var actual = await UserController.GetUsers(null, "Gringo", null);
 
 		// Assert
 		Assert.True(actual != null);
-		Assert.Equal(expected.AsDTO(), actual);
+		Assert.Single(actual);
+		Assert.Equal(expected.AsDTO(), actual.First());
 	}
 
 	[Fact]
-	public async Task TestGetUsers_GetUnexistingUser() {
+	public async Task TestGetUsers_GetRegisteredUserFromId_ShouldReturnOneUser() {
+		// Arrange
+		var expected = GetSampleUsers().ToList()[4];
+
+		// Act
+		var actual = await UserController.GetUsers(null, null, 5);
+
+		// Assert
+		Assert.True(actual != null);
+		Assert.Single(actual);
+		Assert.Equal(expected.AsDTO(), actual.First());
+	}
+
+	[Fact]
+	public async Task TestGetUsers_GetUnexistingUser_ShouldReturnNoUser() {
 		// Arrange
 
 		// Act
 		var actual = await UserController.GetUsers(null, "Mascarenhas", null);
 
 		// Assert
-		Assert.False(actual.Any());
+		Assert.Empty(actual);
 	}
 }
