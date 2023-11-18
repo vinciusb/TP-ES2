@@ -1,53 +1,13 @@
-name: GitHub Actions Demo
+name: Pipeline de garantia de qualidade
 on: [push]
 jobs:
-    aaa:
-        runs-on: ubuntu-latest
-        steps:
-            - name: oi
-              run: ls
-    build:
-        runs-on: ubuntu-latest
+    reusable:
         strategy:
-          matrix:
-            dotnet-version: [ '7.0.x' ]
-            os: [ubuntu-latest, windows-latest, macos-latest]
-        steps:
-            - uses: actions/checkout@v4
-            - name: Setup dotnet
-              uses: actions/setup-dotnet@v3
-              with:
-                dotnet-version: ${{ matrix.dotnet-version }}
-            - name: Install dependencies
-              run: dotnet restore
-            - name: Test with dotnet
-              run: dotnet test --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
-            - name: Upload dotnet test results
-              uses: actions/upload-artifact@v3
-              with:
-                name: dotnet-results-${{ matrix.dotnet-version }}
-                path: TestResults-${{ matrix.dotnet-version }}
-              # Use always() to always run this step to publish test results when there are test failures
-              if: ${{ always() }}
-    # Unit-Test:
-    #     strategy:
-    #         matrix:
-    #             os: [ubuntu-latest]
-    #     runs-on: ${{ matrix.os }}
-    #     container:
-    #         image: mcr.microsoft.com/dotnet/sdk:7.0
-    #     steps:
-    #         - uses: actions/checkout@v4
-    #         - name: Run test
-    #           run: dotnet test ./Test/Unit/Unit.csproj
-    # Integration-Test:
-        # strategy:
-        #     matrix:
-        #         os: [ubuntu-latest]
-        # runs-on: ${{ matrix.os }}
-        # container:
-        #     image: mcr.microsoft.com/dotnet/sdk:7.0
-        # needs: Unit-Test
-        # steps:
-        #     - name: Run test
-        #       run: dotnet test ./Test/Integration/Integration.csproj
+            matrix:
+                dotnet-version: [ '7.0.x' ]
+                os: [ubuntu-latest, windows-latest, macos-latest]
+            fail-fast: true
+        uses: vinciusb/TP-ES2/.github/workflows/reusable.yml@main
+        with:
+            dotnet-version: ${{ matrix.dotnet-version }}
+            os: ${{ matrix.os }}

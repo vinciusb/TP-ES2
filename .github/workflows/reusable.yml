@@ -1,0 +1,34 @@
+on:
+    workflow_call:
+        inputs:
+            dotnet-version:
+                required: true
+                type: string
+            os:
+                required: true
+                type: string
+jobs:
+    build:
+        runs-on: ${{ inputs.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v3
+              with:
+                dotnet-version: ${{ inputs.dotnet-version }}
+            - name: Install dependencies
+              run: dotnet restore
+    unit-test:
+        runs-on: ${{ inputs.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - name: Run test
+              run: dotnet test ./Test/Unit/Unit.csproj
+        needs: [build]
+    integration-test:
+        runs-on: ${{ inputs.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - name: Run test
+              run: dotnet test ./Test/Integration/Integration.csproj
+        needs: [unit-test]
