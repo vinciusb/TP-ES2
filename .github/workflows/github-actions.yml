@@ -9,6 +9,10 @@ jobs:
         container:
             image: mcr.microsoft.com/dotnet/sdk:7.0
         steps:
+            - name: Vamo pegar o nome
+              run: pwd
+            - name: E os arquivo
+              run: ls ../..
             - name: Run test
               run: dotnet test ./Test/Unit/Unit.csproj
     Integration-Test:
