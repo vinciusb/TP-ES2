@@ -12,7 +12,7 @@ jobs:
             - name: Vamo pegar o nome
               run: pwd
             - name: E os arquivo
-              run: ls ../..
+              run: ls .
             - name: Run test
               run: dotnet test ./Test/Unit/Unit.csproj
     Integration-Test:
