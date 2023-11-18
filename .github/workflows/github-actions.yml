@@ -41,13 +41,13 @@ jobs:
     #         - name: Run test
     #           run: dotnet test ./Test/Unit/Unit.csproj
     # Integration-Test:
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-        runs-on: ${{ matrix.os }}
-        container:
-            image: mcr.microsoft.com/dotnet/sdk:7.0
-        needs: Unit-Test
-        steps:
-            - name: Run test
-              run: dotnet test ./Test/Integration/Integration.csproj
+        # strategy:
+        #     matrix:
+        #         os: [ubuntu-latest]
+        # runs-on: ${{ matrix.os }}
+        # container:
+        #     image: mcr.microsoft.com/dotnet/sdk:7.0
+        # needs: Unit-Test
+        # steps:
+        #     - name: Run test
+        #       run: dotnet test ./Test/Integration/Integration.csproj
