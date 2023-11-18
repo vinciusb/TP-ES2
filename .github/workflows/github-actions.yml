@@ -10,6 +10,8 @@ jobs:
         container:
             image: mcr.microsoft.com/dotnet/sdk:7.0
         steps:
+            - name: Bora buildar
+              run: dotnet build
             - name: Vamo pegar o nome
               run: pwd
             - name: E os arquivo
