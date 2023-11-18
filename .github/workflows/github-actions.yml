@@ -5,7 +5,8 @@ jobs:
         strategy:
             matrix:
                 os: [ubuntu-latest]
-        runs-on: ${{ matrix.os }}
+        # runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         container:
             image: mcr.microsoft.com/dotnet/sdk:7.0
         steps:
