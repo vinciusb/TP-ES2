@@ -31,6 +31,7 @@ jobs:
         container:
             image: mcr.microsoft.com/dotnet/sdk:7.0
         steps:
+            - uses: actions/checkout@v4
             - name: Run test
               run: dotnet test ./Test/Unit/Unit.csproj
     Integration-Test:
