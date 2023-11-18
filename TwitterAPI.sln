@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterAPI", "TwitterAPI.csproj", "{38FB684A-234E-47AD-B2EE-0608859516D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{18B6487C-8593-4D7E-A094-597A1ABD5C93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit", "Test\Unit\Unit.csproj", "{8070650E-76F1-4F58-A939-A5AE661706EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration", "Test\Integration\Integration.csproj", "{999284E2-DF51-4FC0-BE64-FF78069AD7F8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38FB684A-234E-47AD-B2EE-0608859516D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38FB684A-234E-47AD-B2EE-0608859516D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38FB684A-234E-47AD-B2EE-0608859516D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38FB684A-234E-47AD-B2EE-0608859516D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8070650E-76F1-4F58-A939-A5AE661706EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8070650E-76F1-4F58-A939-A5AE661706EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8070650E-76F1-4F58-A939-A5AE661706EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8070650E-76F1-4F58-A939-A5AE661706EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{999284E2-DF51-4FC0-BE64-FF78069AD7F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{999284E2-DF51-4FC0-BE64-FF78069AD7F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{999284E2-DF51-4FC0-BE64-FF78069AD7F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{999284E2-DF51-4FC0-BE64-FF78069AD7F8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8070650E-76F1-4F58-A939-A5AE661706EF} = {18B6487C-8593-4D7E-A094-597A1ABD5C93}
+		{999284E2-DF51-4FC0-BE64-FF78069AD7F8} = {18B6487C-8593-4D7E-A094-597A1ABD5C93}
+	EndGlobalSection
+EndGlobal
