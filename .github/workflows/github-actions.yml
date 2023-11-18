@@ -1,11 +1,17 @@
 name: GitHub Actions Demo
 on: [push]
 jobs:
+    aaa:
+        runs-on: ubuntu-latest
+        steps:
+            - name: oi
+              run: ls
     build:
         runs-on: ubuntu-latest
         strategy:
           matrix:
             dotnet-version: [ '7.0.x' ]
+            os: [ubuntu-latest, windows-latest, macos-latest]
         steps:
             - uses: actions/checkout@v4
             - name: Setup dotnet
@@ -23,18 +29,18 @@ jobs:
                 path: TestResults-${{ matrix.dotnet-version }}
               # Use always() to always run this step to publish test results when there are test failures
               if: ${{ always() }}
-    Unit-Test:
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-        runs-on: ${{ matrix.os }}
-        container:
-            image: mcr.microsoft.com/dotnet/sdk:7.0
-        steps:
-            - uses: actions/checkout@v4
-            - name: Run test
-              run: dotnet test ./Test/Unit/Unit.csproj
-    Integration-Test:
+    # Unit-Test:
+    #     strategy:
+    #         matrix:
+    #             os: [ubuntu-latest]
+    #     runs-on: ${{ matrix.os }}
+    #     container:
+    #         image: mcr.microsoft.com/dotnet/sdk:7.0
+    #     steps:
+    #         - uses: actions/checkout@v4
+    #         - name: Run test
+    #           run: dotnet test ./Test/Unit/Unit.csproj
+    # Integration-Test:
         strategy:
             matrix:
                 os: [ubuntu-latest]
