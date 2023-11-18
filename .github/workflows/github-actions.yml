@@ -1,0 +1,10 @@
+name: GitHub Actions Demo
+on: [push]
+jobs:
+    Unit-Test:
+        runs-on: ubuntu-lastest
+        container:
+            image: mcr.microsoft.com/dotnet/sdk:7.0
+        steps:
+            - name: Run test
+              run: dotnet test ./Test/Unit/Unit.csproj
